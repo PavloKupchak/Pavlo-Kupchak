@@ -1,34 +1,47 @@
 #include <iostream>
+#include <cstdio>
 #include "price.h"
+
 using namespace std;
 
 void transfer(Price& cina) {
-    while (cina.kop >= 100) {
-        cina.hryvnia++;
-        cina.kop -= 100;
+    if (cina.kop >= 100) {
+        cina.hryvnia = cina.hryvnia + cina.kop / 100;
+        cina.kop = cina.kop % 100;
     }
 }
 
 void add(Price& total, const Price& item) {
-    total.hryvnia += item.hryvnia;
-    total.kop += item.kop;
+    total.hryvnia = total.hryvnia + item.hryvnia;
+    total.kop = total.kop + item.kop;
     transfer(total);
 }
 
-void multiply(Price& cina, int quantity) {
-    cina.hryvnia *= quantity;
-    cina.kop *= quantity;
-    transfer(cina);
+void multiply(Price& item, int quantity) {
+    item.hryvnia = item.hryvnia * quantity;
+    item.kop = item.kop * quantity;
+    transfer(item);
 }
 
 void round(Price& cina) {
-    if (cina.kop % 10 >= 5)
-        cina.kop += (10 - cina.kop % 10);
+    int ostatok = cina.kop % 10;
+    if (ostatok >= 5)
+        cina.kop = cina.kop + (10 - ostatok);
     else
-        cina.kop -= cina.kop % 10;
+        cina.kop = cina.kop - ostatok;
     transfer(cina);
 }
 
 void print(const Price& cina) {
     cout << cina.hryvnia << " hrn " << cina.kop << " kop" << endl;
+}
+
+void Total(FILE* file, Price& total){
+    Price item;
+    int quantity;
+
+    while (fscanf(file, "%d %hi %d", &item.hryvnia, &item.kop, &quantity) == 3){
+        multiply(item, quantity);
+        add(total, item);
+    }
 }
